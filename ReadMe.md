@@ -11,7 +11,7 @@ Diese Liste enthält Modelle, die erfolgreich mit OpenRouter getestet wurden (z.
 - **mistralai/mistral-small-3.2-24b-instruct**
   - **Notes:** nicht merkbar schlechter und eindeutig günstiger
 - **qwen/qwen3.5-flash-02-23**
-  - **Notes:** Auch keine Fehler und etwas schneller
+  - **Notes:** Auch wenig Fehler und etwas schneller
 - **google/gemini-3.1-flash-lite**
   - **Notes:** Schnell, aber fehlerhaft bei dünner Schrift und inkonstantes Layout
 
