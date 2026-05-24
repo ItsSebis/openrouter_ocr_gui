@@ -11,7 +11,7 @@ Diese Liste enthält Modelle, die erfolgreich mit OpenRouter getestet wurden (z.
 - **qwen/qwen3.5-flash-02-23**
   - **Notes:** Auch keine Fehler und etwas schneller
 - **google/gemini-3.1-flash-lite**
-  - **Notes:** Schnell, aber nicht so schönes layout
+  - **Notes:** Schnell, aber fehlerhaft bei dünner Schrift und inkonstantes Layout
 
 > Hinweis: Wenn du weitere Modelle in deinem OpenRouter-Account erfolgreich getestet hast, ergänze sie hier (inkl. genauer Model-ID).
 
