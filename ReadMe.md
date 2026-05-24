@@ -4,10 +4,12 @@ Diese Liste enthält Modelle, die erfolgreich mit OpenRouter getestet wurden (z.
 
 ## Modelle (proven working)
 
+- **openai/gpt-5.5**
+  - **Notes:** mit Abstand am fortschrittlichsten
 - **openai/gpt-4o**
-  - **Notes:** Sehr kompetent, aber teuer
+  - **Notes:** kompetent, aber teuer
 - **mistralai/mistral-small-3.2-24b-instruct**
-  - **Notes:** Keine Fehler gehabt und eindeutig günstiger
+  - **Notes:** nicht merkbar schlechter und eindeutig günstiger
 - **qwen/qwen3.5-flash-02-23**
   - **Notes:** Auch keine Fehler und etwas schneller
 - **google/gemini-3.1-flash-lite**
