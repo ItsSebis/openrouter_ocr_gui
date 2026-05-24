@@ -17,23 +17,35 @@ Diese Liste enthält Modelle, die erfolgreich mit OpenRouter getestet wurden (z.
 
 ## Hinweise
 
-- **Prompt-Generierung (bewährter Workflow):** Für deutlich bessere OCR- und Extraktionsqualität hat sich bewährt, den API-Prompt mit einem Online-KI-Tool iterativ zu generieren (so wie wir es hier gemacht haben): Produkt/Marke kurz beschreiben, Beispiele für obskure Kassenzettel-Abkürzungen nennen und klare JSON-Ausgabe-Regeln vorgeben. Das Ergebnis ist oft wesentlich robuster als ein generischer „mach OCR“-Prompt.
-  **Template-Prompt (nur Produktdetails einsetzen):**
+- **Prompt-Generierung (bewährter Workflow):** Für deutlich bessere OCR- und Extraktionsqualität hat sich bewährt, den *finalen* OCR/API-Prompt nicht direkt „aus dem Bauch heraus“ zu schreiben, sondern ihn zuerst mit einem Online-KI-Tool als **maßgeschneiderten Prompt** generieren zu lassen. Dabei gibst du dem Online-Tool klare Ziele (Voll-OCR + strukturierte Extraktion), harte Ausgabe-Regeln (nur JSON, keine Halluzination) und produkt-spezifische Matching-Hinweise (Abkürzungen/Slogans). Das hat hier besonders gut funktioniert.
+  **Meta-Prompt (Prompt zur Generierung deines OCR-Prompts):**
+  > Diesen Text kopierst du in ein Online-KI-Tool. Als Ergebnis soll dir das Tool einen fertigen Prompt liefern, den du anschließend in `API_PROMPT` (bzw. in dein Script/.env) einfügst.
   ```text
-  Du bist ein hochpräzises OCR- und Beleg-Parsing-System. Du erhältst ein Foto eines Kassenzettels.
-  Ziel: Alle Positionen mit Preisen extrahieren und zusätzlich ein bestimmtes Produkt auch bei verkürzten/obskuren Namen sicher erkennen.
-  Produktdetails:
+  Erstelle einen maximal robusten Prompt für ein multimodales OCR/Beleg-Parsing-Modell (Receipt Photo OCR). 
+  Kontext: Der Input ist ein Foto eines Kassenzettels unter realen Bedingungen (schräg fotografiert, Schatten/Blitz, Unschärfe, verkürzte Artikeltexte).
+  Ziele des finalen Prompts:
+  1) Vollständige OCR-Transkription (zeilenweise, Reihenfolge beibehalten) + eine normalisierte Textvariante.
+  2) Strukturierte Extraktion als JSON mit mindestens:
+     - merchant.name (Markt/Shop)
+     - merchant.address (inkl. PLZ falls vorhanden)
+     - receipt.date (YYYY-MM-DD, falls möglich)
+     - receipt.time (falls vorhanden)
+     - line_items[] mit description_raw, quantity, unit_price, total_price, confidence
+     - totals (subtotal/tax/total soweit vorhanden)
+  3) Spezial-Identifikation eines Zielprodukts, auch wenn der Name auf dem Bon obskur/abgekürzt ist.
+  Zielprodukt-Daten (bitte im finalen Prompt berücksichtigen):
   - Marke: {BRAND}
   - Produktlinie/Produktname: {PRODUCT_LINE}
-  - Varianten/Sorten: {VARIANTS}  (z.B. "A", "B")
-  - Typische Bon-Schreibweisen/Abkürzungen: {RECEIPT_ALIASES}
-  - Erkennungs-Hinweise (Slogans/Keywords/Größe): {HINTS}
-  Anforderungen:
-  - Gib NUR gültiges JSON zurück.
-  - Extrahiere alle line_items vollständig (description_raw, quantity, unit_price, total_price, confidence).
-  - Extrahiere auch die Daten des Kaufes selbst, z.B. den Markt, die Adresse (besonders die PLZ) und das Datum
-  - Implementiere ein flexibles Matching gegen die Produktdetails und schreibe Treffer in matched_product inkl. match_reason + match_confidence.
-  - Erfinde keine Werte; bei Unsicherheit null + low confidence + notes.
+  - Varianten/Sorten: {VARIANTS}
+  - Typische Bon-Schreibweisen/Abkürzungen (inkl. OCR-Fehler): {RECEIPT_ALIASES}
+  - Zusätzliche Hinweise/Keywords/Slogans/Größe: {HINTS}
+  Anforderungen an den finalen Prompt:
+  - Ausgabe ausschließlich als gültiges JSON (keine Markdown-Fences, kein zusätzlicher Text).
+  - Strikte Anti-Halluzination: Wenn unsicher => null + confidence="low" + notes.
+  - Zahlen-Regeln: Dezimalpunkt im JSON, Währungszeichen entfernen, Komma->Punkt.
+  - Matching-Logik: flexible Heuristiken (Brand-Varianten, Keywords, Varianten-Hinweise, Größen-Hinweise), aber ohne zu raten.
+  - Vollständigkeit: Alle Produkte/Positionen ausgeben, auch wenn unklar/verkürzt.
+  Liefere als Antwort NUR den fertigen OCR/API-Prompt, den ich 1:1 in mein Script übernehmen kann.
   ```
 
 - **Kompatibilität (Vision/OCR):** Für OCR aus Bildern brauchst du ein Modell, das Bildinput unterstützt. Nicht jede Model-ID auf OpenRouter ist multimodal.
